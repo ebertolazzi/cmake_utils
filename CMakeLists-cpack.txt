@@ -20,10 +20,10 @@ set(
   CACHE STRING "Path To ${PROJECT_NAME} Cmake Files"
 )
 
-configure_file(
-  "cmake/${PROJECT_NAME}-config.cmake.in"
-  "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config.cmake" @ONLY
-)
+#configure_file(
+#  "cmake/${PROJECT_NAME}-config.cmake.in"
+#  "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config.cmake" @ONLY
+#)
 
 # Set the name of the generated installation package
 set(CPACK_PACKAGE_NAME "${UTILS_NAMESPACE}-${PROJECT_NAME}")

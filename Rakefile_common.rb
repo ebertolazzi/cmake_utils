@@ -14,7 +14,7 @@ require 'rake/clean'
 # avoid to remove file "core" (in Eigen inclusion)
 CLEAN.clear_exclude.exclude { |fn| fn.pathmap("%f").downcase == "core" }
 
-require_relative "./Rakefile_conf.rb"
+require_relative "./Rakefile_configure.rb"
 
 #    ___  ____
 #   / _ \/ ___|
@@ -58,25 +58,47 @@ else
   QUIET    = ''
 end
 
-cmd_cmake_build = ""
-if COMPILE_EXECUTABLE then
-  cmd_cmake_build += ' -DUTILS_ENABLE_TESTS:VAR=ON '
-else
-  cmd_cmake_build += ' -DUTILS_ENABLE_TESTS:VAR=OFF '
-end
-if COMPILE_DYNAMIC then
-  cmd_cmake_build += ' -DUTILS_BUILD_SHARED:VAR=ON '
-else
-  cmd_cmake_build += ' -DUTILS_BUILD_SHARED:VAR=OFF '
-end
-if COMPILE_DEBUG then
-  cmd_cmake_build += ' -DCMAKE_BUILD_TYPE:VAR=Debug --loglevel=STATUS '
-else
-  cmd_cmake_build += ' -DCMAKE_BUILD_TYPE:VAR=Release --loglevel=STATUS '
+def cmd_cmake_build()
+  res = ""
+  if COMPILE_EXECUTABLE then
+    res += ' -DUTILS_ENABLE_TESTS:VAR=ON '
+  else
+    res += ' -DUTILS_ENABLE_TESTS:VAR=OFF '
+  end
+  if COMPILE_DYNAMIC then
+    res += ' -DUTILS_BUILD_SHARED:VAR=ON '
+  else
+    res += ' -DUTILS_BUILD_SHARED:VAR=OFF '
+  end
+  if COMPILE_DEBUG then
+    res += ' -DCMAKE_BUILD_TYPE:VAR=Debug --loglevel=STATUS '
+  else
+    res += ' -DCMAKE_BUILD_TYPE:VAR=Release --loglevel=STATUS '
+  end
+  return res
 end
 
 desc "default task --> build"
 task :default => :build
+
+desc "git submodule reset"
+task :git_submodules do
+  #sh "git clean -d -x -f"
+  sh "git reset --hard"
+  sh "git submodule update --init --recursive"
+  sh "git submodule sync --recursive"
+  sh "git submodule foreach --recursive git reset --hard"
+  sh "git submodule foreach --recursive git clean -d -x -f"
+  # estrae i sottomoduli alla corretta versione!
+  sh "git submodule update --checkout --recursive"
+end
+
+desc "git clean reset"
+task :git_clean do
+  sh "git reset --hard"
+  sh "git clean -d -x -f"
+end
+
 
 #   ____  _   _ _   _
 #  |  _ \| | | | \ | |
@@ -101,6 +123,13 @@ task :run do
       system(exe)
     end
   end
+end
+
+desc "run tests"
+task :test do
+  FileUtils.cd "build"
+  sh 'ctest --output-on-failure'
+  FileUtils.cd '..'
 end
 
 #   ____  _   _ ___ _     ____
@@ -193,6 +222,24 @@ def cmake_generation_command( bits, year )
     end
   end
   return tmp
+end
+
+#   _   _ _____ _______        _____  ____  _  __
+#  | \ | | ____|_   _\ \      / / _ \|  _ \| |/ /
+#  |  \| |  _|   | |  \ \ /\ / / | | | |_) | ' /
+#  | |\  | |___  | |   \ V  V /| |_| |  _ <| . \
+#  |_| \_|_____| |_|    \_/\_/  \___/|_| \_\_|\_\
+#
+def url_download( url_address, filename )
+  if File.exist?(filename)
+    puts "file: `#{filename}` already downloaded"
+  else
+    puts "downloading: #{filename}..."
+    uri_str = url_resolve(url_address)
+    uri     = URI( uri_str )
+    File.binwrite( filename, Net::HTTP.get(uri) )
+    puts "done"
+  end
 end
 
 #

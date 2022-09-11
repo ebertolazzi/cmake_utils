@@ -82,6 +82,18 @@ endfunction()
 #
 # ------------------------------------------------------------------------
 #
+function( utils_copy_directory FROM TO )
+  file( GLOB_RECURSE S "${FROM}/*" )
+  foreach(F ${S})
+    # build relative path respect to source directory
+    file( RELATIVE_PATH RF ${FROM} ${F} )
+    get_filename_component( DIR "${TO}/${RF}" DIRECTORY )
+    file( COPY ${F} DESTINATION ${DIR} )
+  endforeach(F ${S})
+endfunction()
+#
+# ------------------------------------------------------------------------
+#
 function(utils_final_messages)
   if(SSE_FLAGS)
     message(STATUS "Using ${SSE_FLAGS} extensions")

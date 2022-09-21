@@ -42,7 +42,7 @@ end
 #   \____|_|  |_/_/   \_\_|\_\_____|
 #
 case OS
-when :linux,:mac
+when :linux,:mac,:mingw
   require 'etc'
   cmakeversion = %x( cmake --version ).scan(/\d+\.\d+\.\d+/).last
   mm = cmakeversion.split('.');
@@ -53,9 +53,11 @@ when :linux,:mac
     PARALLEL = ''
     QUIET    = ''
   end
-else
+when :win
   PARALLEL = ''
   QUIET    = ''
+else
+  raise "Unsupported platform #{OS}"
 end
 
 def cmd_cmake_build()
@@ -99,7 +101,6 @@ task :git_clean do
   sh "git clean -d -x -f"
 end
 
-
 #   ____  _   _ _   _
 #  |  _ \| | | | \ | |
 #  | |_) | | | |  \| |
@@ -122,6 +123,8 @@ task :run do
       puts "execute #{exe}".yellow
       system(exe)
     end
+  else
+    raise "Unsupported platform #{OS}"
   end
 end
 
@@ -153,6 +156,8 @@ task :build do
   when :mingw
     puts "Build (mingw)".green
     Rake::Task[:build_mingw].invoke
+  else
+    raise "Unsupported platform #{OS}"
   end
 end
 
@@ -171,6 +176,8 @@ task :clean do
   when :mingw
     puts "Clean (mingw)".green
     Rake::Task[:clean_mingw].invoke
+  else
+    raise "Unsupported platform #{OS}"
   end
 end
 
@@ -183,44 +190,36 @@ task :default => :build
 #  | |__| |_| | |  | |  __/| || |___| |___|  _ <
 #   \____\___/|_|  |_|_|  |___|_____|_____|_| \_\
 #
-def cmake_generation_command( bits, year )
+def cmake_vs_command( bits, year )
 
   tmp = " -DBITS:VAR=#{bits} "
 
-  case WIN_COMPILER
-  when :nmake
-    tmp = 'cmake -G "NMake Makefiles" ' + tmp
-  when :mingw
-    tmp = 'cmake -G "MinGW Makefiles" ' + tmp
-  when :msys
-    tmp = 'cmake -G "MSYS Makefiles" ' + tmp
-  else
-    win32_64  = ''
-    win32_64_ = '-A Win32'
-    case bits
-    when /x64/
-      win32_64  = ' Win64'
-      win32_64_ = ' -A x64'
-    end
-
-    case year
-    when "2010"
-      tmp = 'cmake -G "Visual Studio 10 2010' + win32_64 +'" ' + tmp
-    when "2012"
-      tmp = 'cmake -G "Visual Studio 11 2012' + win32_64 +'" ' + tmp
-    when "2013"
-      tmp = 'cmake -G "Visual Studio 12 2013' + win32_64 +'" ' + tmp
-    when "2015"
-      tmp = 'cmake -G "Visual Studio 14 2015' + win32_64 +'" ' + tmp
-    when "2017"
-      tmp = 'cmake -G "Visual Studio 15 2017' + win32_64 +'" ' + tmp
-    when "2019"
-      tmp = 'cmake -G "Visual Studio 16 2019"' + win32_64_ + tmp
-    else
-      puts "Visual Studio year #{year} not supported!\n";
-      return ""
-    end
+  win32_64  = ''
+  win32_64_ = '-A Win32'
+  case bits
+  when /x64/
+    win32_64  = ' Win64'
+    win32_64_ = ' -A x64'
   end
+
+  case year
+  when "2010"
+    tmp = 'cmake -G "Visual Studio 10 2010' + win32_64 +'" ' + tmp
+  when "2012"
+    tmp = 'cmake -G "Visual Studio 11 2012' + win32_64 +'" ' + tmp
+  when "2013"
+    tmp = 'cmake -G "Visual Studio 12 2013' + win32_64 +'" ' + tmp
+  when "2015"
+    tmp = 'cmake -G "Visual Studio 14 2015' + win32_64 +'" ' + tmp
+  when "2017"
+    tmp = 'cmake -G "Visual Studio 15 2017' + win32_64 +'" ' + tmp
+  when "2019"
+    tmp = 'cmake -G "Visual Studio 16 2019"' + win32_64_ + tmp
+  else
+    puts "Visual Studio year #{year} not supported!\n";
+    return ""
+  end
+
   return tmp
 end
 

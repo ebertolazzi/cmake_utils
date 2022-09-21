@@ -18,8 +18,5 @@ else
   COMPILE_DEBUG      = false
   COMPILE_DYNAMIC    = false
   COMPILE_EXECUTABLE = true
-  # compiler on WINDOWS
-  # possible values are: :vs, :nmake, :mingw, :msys
-  WIN_COMPILER = :nmake # The default is to use Visual Studio with nmake
   #-------------------------
 end

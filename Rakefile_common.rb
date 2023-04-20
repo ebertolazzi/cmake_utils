@@ -30,7 +30,7 @@ when /linux|cygwin/ # cygwin compile as a linux system
 when /msys|mingw/
   # msys2 envirorment to compile with MINGW
   OS = :mingw
-default # assume windows
+else # assume windows
   OS = :win
 end
 #

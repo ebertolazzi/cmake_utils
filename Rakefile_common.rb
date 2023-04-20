@@ -27,7 +27,7 @@ when /darwin/
   OS = :mac
 when /linux|cygwin/ # cygwin compile as a linux system
   OS = :linux
-when /msys|mingw/
+when /msys/
   # msys2 envirorment to compile with MINGW
   OS = :mingw
 else # assume windows

@@ -70,7 +70,7 @@ set(MSVC_COMPILE_FLAGS
   "/w14928"
   "/external:W0"               # Disattiva tutti i warning da headers esterni
   "/external:anglebrackets"    # Considera <...> come header esterni
-  "/external:templates-compat" # (facoltativo) estende il trattamento agli instanziamenti template
+  #"/external:templates-compat" # (facoltativo) estende il trattamento agli instanziamenti template
 )
 
 string(JOIN " " MSVC_COMPILE_FLAGS_STR ${MSVC_COMPILE_FLAGS})

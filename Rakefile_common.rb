@@ -5,7 +5,7 @@
   begin
     require gem
   rescue LoadError
-    warn "Install the #{gem} gem:\n $ (sudo) gem install #{gem}".magenta
+    warn "Install the #{gem} gem:\n $ (sudo) gem install #{gem}"
     exit 1
   end
 end
@@ -13,7 +13,7 @@ end
 begin
   require 'zip'
 rescue LoadError
-  warn "Install the rubyzip gem:\n $ (sudo) gem install rubyzip".magenta
+  warn "Install the rubyzip gem:\n $ (sudo) gem install rubyzip"
   exit 1
 end
 
@@ -51,6 +51,7 @@ case OS
 when :linux,:mac,:mingw
   require 'etc'
   cmakeversion = %x( cmake --version ).scan(/\d+\.\d+\.\d+/).last
+  raise "Cannot find `cmake` in PATH" if cmakeversion.nil?
   mm = cmakeversion.split('.');
   if mm[0].to_i > 3 || (mm[0].to_i == 3 && mm[1].to_i >= 12) then
     PARALLEL = "--parallel #{Etc.nprocessors} "
